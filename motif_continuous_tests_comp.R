@@ -15,13 +15,13 @@ run_ks_tests <- function(all_kmers, params) {
     filter(max(ingroup) == 1) %>%
     filter(min(ingroup) == 0) %>%
     summarise(
-      ks_pval_gr = ks.test(param_val[ingroup], param_val[!ingroup], alternative = 'greater')$p.value,
-      ks_pval_ls = ks.test(param_val[ingroup], param_val[!ingroup], alternative = 'less')$p.value,
-      kmer_mean = mean(param_val[ingroup], na.rm = T),
-      bg_mean = mean(param_val[!ingroup], na.rm = T),
+      ks_pval_gr = ks.test(param_val[ingroup == 1], param_val[ingroup == 0], alternative = 'greater')$p.value,
+      ks_pval_ls = ks.test(param_val[ingroup == 1], param_val[ingroup == 0], alternative = 'less')$p.value,
+      kmer_mean = mean(param_val[ingroup == 1], na.rm = T),
+      bg_mean = mean(param_val[ingroup == 0], na.rm = T),
       tot_sd = sd(param_val, na.rm = T),
-      kmer_size = sum(ingroup, na.rm = T),
-      bg_size = sum(!ingroup, na.rm = T)
+      kmer_size = sum(ingroup == 1, na.rm = T),
+      bg_size = sum(ingroup == 0, na.rm = T)
     )
   
   return(kmer_test)
