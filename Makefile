@@ -114,6 +114,22 @@ all_ks_tests_kebabs_comp:
 	make run_ks_test_kebabs_comp dir=$(dtype)/kmer_matrices_kebabs n=9 term=$(category)
 	make run_ks_test_kebabs_comp dir=$(dtype)/kmer_matrices_kebabs n=10 term=$(category)
 
+run_hg_test_kebabs:
+	rm -rf test_table_$(id)_$(n)$(p).txt; \
+	$(foreach k, $(shell ls $(dir)/*$(n)mer_p$(p)*.rds), \
+		echo "Rscript motif_hg_test.R $(k) $(param_file) $(dtype)/kmer_out_kebabs_hg $(id)" >> test_table_$(id)_$(n)$(p).txt; \
+	) \
+	sbatch.pl -a test_table_$(id)_$(n)$(p).txt -R 8 -t 1:00:0 "module load R4";
+
+all_hg_tests_kebabs:
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=4 param_file=$(param_file) id=$(run_id)
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=5 param_file=$(param_file) id=$(run_id)
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=6 param_file=$(param_file) id=$(run_id)
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=7 param_file=$(param_file) id=$(run_id)
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=8 param_file=$(param_file) id=$(run_id)
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=9 param_file=$(param_file) id=$(run_id)
+	make run_hg_test_kebabs dir=$(dtype)/kmer_matrices_kebabs n=10 param_file=$(param_file) id=$(run_id)
+
 # ----------------------------------------------------------
 # kmer analysis - quality
 # (1) make check_all_files category=$(CATEGORY) - and follow instructions
@@ -132,5 +148,11 @@ check_all_files_comp:
 
 combine_all_outputs_comp:
 	sbatch.pl "awk '(NR == 1) || (FNR > 1)' $(dtype)/kmer_out_kebabs/$(set)/$(category)*.tmpkmers > $(dtype)/kmer_out_kebabs/$(set)_$(category)_ks_raw_with_stats.tsv; rm -rf $(dtype)/kmer_out_kebabs/$(set)/$(category)*.tmpkmers"
+
+check_all_files_hg:
+	Rscript check_missing_files.R $(dtype)/kmer_out_kebabs_hg $(run_id)
+
+combine_all_outputs_hg:
+	sbatch.pl "awk '(NR == 1) || (FNR > 1)' $(dtype)/kmer_out_kebabs_hg/$(run_id)*.tmpkmers > $(dtype)/kmer_out_kebabs_hg/$(run_id)_ks_raw_with_stats.tsv; rm -rf $(dtype)/kmer_out_kebabs_hg/$(run_id)*.tmpkmers"
 
 
